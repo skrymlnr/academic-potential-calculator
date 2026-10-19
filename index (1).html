@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Калькулятор академічного потенціалу</title>
+<meta name="description" content="Навчальний проєкт: перевірка умов гранту та оцінка профілю потенціалу студента за даними PISA 2022 для України.">
+<style>
+:root{
+  --bg:#f6f7f9; --card:#ffffff; --ink:#1b2430; --ink2:#4a5666; --muted:#6b7686; --line:#dde2ea;
+  --accent:#1f5fa8; --accent-soft:#e6eff9; --accent-ink:#ffffff;
+  --ok:#17653a; --ok-bg:#e5f4ea; --no:#8a2b1f; --no-bg:#fbebe8; --warn-bg:#fff4d6; --warn:#6d5200;
+  --bar:#1f5fa8; --bar2:#a9c5e6; --grid:#e6eaf0;
+  --b1:#c9dbf0; --b2:#9dbfe6; --b3:#6c9fd8; --b4:#3f7bc0; --b5:#1f5fa8;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#10161d; --card:#18212b; --ink:#e8edf3; --ink2:#b4bfcc; --muted:#8f9bab; --line:#2a3644;
+    --accent:#6aa7f0; --accent-soft:#1d2c3f; --accent-ink:#0c131b;
+    --ok:#7fd6a0; --ok-bg:#16301f; --no:#f2a79c; --no-bg:#3a1e1a; --warn-bg:#3a3014; --warn:#f0d98c;
+    --bar:#6aa7f0; --bar2:#3a5b82; --grid:#263241;
+    --b1:#2c425d; --b2:#3a5b82; --b3:#4c7db3; --b4:#6aa7f0; --b5:#9cc5f7;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10161d; --card:#18212b; --ink:#e8edf3; --ink2:#b4bfcc; --muted:#8f9bab; --line:#2a3644;
+  --accent:#6aa7f0; --accent-soft:#1d2c3f; --accent-ink:#0c131b;
+  --ok:#7fd6a0; --ok-bg:#16301f; --no:#f2a79c; --no-bg:#3a1e1a; --warn-bg:#3a3014; --warn:#f0d98c;
+  --bar:#6aa7f0; --bar2:#3a5b82; --grid:#263241;
+  --b1:#2c425d; --b2:#3a5b82; --b3:#4c7db3; --b4:#6aa7f0; --b5:#9cc5f7;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+.wrap{max-width:760px;margin:0 auto;padding:20px 16px 56px}
+h1{font-size:1.55rem;line-height:1.25;margin:8px 0 6px}
+h2{font-size:1.2rem;margin:0 0 10px}
+h3{font-size:1rem;margin:18px 0 6px}
+p{margin:0 0 10px}
+.lead{color:var(--ink2)}
+.notice{background:var(--warn-bg);color:var(--warn);border-radius:10px;padding:10px 14px;font-size:.92rem;margin:14px 0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin:16px 0}
+.opts{display:grid;gap:10px}
+.opt{display:flex;gap:12px;align-items:flex-start;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer;background:var(--card)}
+.opt:hover{border-color:var(--accent)}
+.opt input{margin-top:4px;accent-color:var(--accent);width:18px;height:18px;flex:none}
+.opt.sel{border-color:var(--accent);background:var(--accent-soft)}
+.opt b{display:block}
+.opt span{color:var(--ink2);font-size:.92rem}
+label.q{display:block;font-weight:600;margin:16px 0 6px}
+input[type=number]{width:100%;font:inherit;color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:10px 12px}
+input:focus,.opt:focus-within{outline:2px solid var(--accent);outline-offset:1px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:520px){.grid2{grid-template-columns:1fr}}
+button{font:inherit;font-weight:600;background:var(--accent);color:var(--accent-ink);border:0;border-radius:10px;padding:12px 20px;cursor:pointer;margin-top:18px}
+button:hover{filter:brightness(1.08)}
+.grp{padding-top:0;margin-top:4px}
+.grp h3{margin:0 0 2px}
+.lab{display:flex;justify-content:space-between;gap:10px;margin-top:6px;color:var(--muted);font-size:.78rem;line-height:1.3}
+.lab span{flex:1}.lab span:last-child{text-align:right}.lab.l5 span:nth-child(2){text-align:center}
+.st{margin:10px 0 12px}
+.stt{margin-bottom:6px}
+.chips{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.chip{position:relative;display:block}
+.chip input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer}
+.chip span{display:block;text-align:center;border:1.5px solid var(--line);border-radius:10px;padding:9px 0;font-weight:600;background:var(--card);color:var(--ink2)}
+.chip:hover span{border-color:var(--accent)}
+.chip input:checked+span{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.chip input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}
+.res{border-radius:12px;padding:14px 16px;margin:10px 0}
+.res.ok{background:var(--ok-bg);color:var(--ok)}
+.res.no{background:var(--no-bg);color:var(--no)}
+.res b{display:block;font-size:1.05rem}
+.res span{color:var(--ink)}
+.meter{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:3px;height:16px;margin:34px 0 8px}
+.meter div{border-radius:4px}
+.meter i{position:absolute;top:-8px;width:4px;height:32px;border-radius:2px;background:var(--ink);transform:translateX(-2px)}
+.meter u{position:absolute;top:-30px;transform:translateX(-50%);text-decoration:none;font-weight:700;font-size:.9rem;white-space:nowrap}
+.scale{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;color:var(--muted);font-size:.74rem;text-align:center;line-height:1.25}
+.scale .on{color:var(--ink);font-weight:700}
+.big{font-size:1.25rem;font-weight:700}
+table{width:100%;border-collapse:collapse;font-size:.92rem;margin:8px 0}
+th,td{text-align:left;padding:7px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--muted);font-weight:600;font-size:.82rem}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tw{overflow-x:auto}
+@media(max-width:520px){table{font-size:.86rem}th,td{padding:7px 4px}}
+.err{color:var(--no);font-size:.9rem;margin-top:8px}
+.chart{margin:12px 0 4px}
+.chart svg{width:100%;height:auto;display:block}
+.chart text{fill:var(--ink2);font:12px system-ui,sans-serif}
+.chart .v{fill:var(--ink);font-weight:700}
+.cap{color:var(--muted);font-size:.86rem}
+details{margin:6px 0}
+summary{cursor:pointer;color:var(--accent);font-size:.9rem}
+ul{padding-left:20px;margin:6px 0 10px}
+li{margin:4px 0}
+footer{color:var(--muted);font-size:.86rem;margin-top:24px}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Калькулятор академічного потенціалу</h1>
+<p class="lead">Подаєтеся на грант в KSE і переймаєтеся перед співбесідою з комісією? Ми підготували калькулятор, який враховує цінності KSE і навички, які університет цінує під час відбору студентів на грант. Відповіді на 15 коротких запитань покажуть, наскільки ви сильний кандидат. Ваш результат порівнюємо із профілями сильних учнів за даними PISA 2022 року для України.</p>
+<div class="notice"><b>Важливо:</b> це студентський проєкт, який не є офіційним калькулятором KSE. Він не впливає на рішення грантової комісії. Результат калькулятора — орієнтир для самоаналізу, а не точний прогноз. Високий результат не гарантує грант у KSE. Бажаємо удачі зі вступом і подачею на грант!</div>
+
+
+<section class="card" id="s1">
+<h2>1. На який грант ви подаєтесь?</h2>
+<div class="opts" id="grantOpts"></div>
+</section>
+
+<section class="card hidden" id="s2"><h2 id="s2t"></h2><div id="s2b"></div></section>
+<section class="card hidden" id="s3"><h2>3. Ваш профіль</h2>
+<p class="cap">Для кожного твердження оберіть число. Під кнопками підписано, що означають крайні значення. Чим чесніші відповіді, тим точніший результат.</p>
+<div id="s3b"></div></section>
+<div id="btnRow" class="hidden"><button id="go" type="button">Показати результат</button><div class="err" id="err" role="alert"></div></div>
+<section class="card hidden" id="out" aria-live="polite"></section>
+
+<section class="card" id="data">
+<h2>Як побудовано шкалу</h2>
+<p>PISA — міжнародне дослідження 15-річних учнів. Для України у 2022 році дані охоплюють 3 876 учнів. Ми дивилися, які відповіді на анкету найкраще відрізняють учнів із найвищим сумарним балом (математика, читання, природничі науки). З них відібрали 15 запитань, на які заявник може легко відповісти, зважили їхній вплив і склали калькулятор, аби допомогти вступникам.</p>
+<p><b>Точність помірна.</b> Аби підтвердити точність нашого калькулятора, ми добирали запитання і ваги, спираючись на дані частини шкіл з бази даних PISA, а протестували калькулятор на іншій половині шкіл з цієї бази даних. AUC нашого калькулятора = 0,74–0,78. Це показник того, що наша модель досить добре розрізняє учнів. Проте калькулятор не є інструментом грантової комісії KSE, тому ваш результат — орієнтир для самоаналізу, а не прогноз.</p>
+</section>
+<footer>Джерело: OECD, PISA 2022, база даних учнівського опитування (Україна, 18 із 27 регіонів). Розрахунки: зважені; довірчі інтервали бутстрепом по школах; пропущені відповіді відновлено множинною імпутацією (5 наборів). Навчальний проєкт.</footer>
+</div>
+
+<script id="logic">
+var CALC=(function(){
+  var NMT_ONE=190, NMT_TWO=175;
+  var D={"blocks": [{"id": "math", "name": "Впевненість у математиці", "w": 28, "sign": 1, "mu": -0.00617, "sd": 0.91552, "data": 30.0, "dlo": 24.6, "dhi": 32.8, "items": [{"id": "ST290Q09WA", "text": "Я впевнено розв'язую математичні задачі.", "mu": 2.8458, "sd": 0.9477, "rev": false, "n": 4, "sc": "conf"}, {"id": "ST291Q01JA", "text": "Я вмію інтерпретувати графіки та діаграми.", "mu": 2.3662, "sd": 0.8796, "rev": false, "n": 4, "sc": "conf"}, {"id": "ST291Q02JA", "text": "Я можу застосувати математику до реальної життєвої ситуації та витлумачити розв'язок.", "mu": 2.2903, "sd": 0.797, "rev": false, "n": 4, "sc": "conf"}]}, {"id": "growth", "name": "Віра в розвиток здібностей", "w": 16, "sign": -1, "mu": -0.0, "sd": 1.0, "data": 17.4, "dlo": 12.5, "dhi": 20.8, "items": [{"id": "ST263Q02JA", "text": "Я вважаю, що свої здібності можна значно розвинути наполегливою працею.", "mu": 2.284, "sd": 0.8687, "rev": true, "n": 4, "sc": "a4"}]}, {"id": "persp", "name": "Різні точки зору", "w": 17, "sign": 1, "mu": -0.01082, "sd": 0.94823, "data": 18.8, "dlo": 13.4, "dhi": 23.2, "items": [{"id": "ST303Q01JA", "text": "Перш ніж зайняти позицію, я намагаюся врахувати погляди всіх.", "mu": 3.4933, "sd": 0.9742, "rev": false, "n": 5, "sc": "a5"}, {"id": "ST303Q06JA", "text": "Я хочу зрозуміти, чому люди в окремих ситуаціях поводяться певним чином і що є причиною такої поведінки.", "mu": 3.5477, "sd": 0.9545, "rev": false, "n": 5, "sc": "a5"}]}, {"id": "info", "name": "Критичне мислення з інформацією", "w": 16, "sign": 1, "mu": -0.01262, "sd": 0.80379, "data": 16.8, "dlo": 11.4, "dhi": 20.6, "items": [{"id": "IC180Q02JA", "text": "Коли я шукаю інформацію онлайн, я порівнюю різні джерела.", "mu": 2.8475, "sd": 0.7125, "rev": false, "n": 4, "sc": "a4"}, {"id": "IC183Q02JA", "text": "Я можу оцінити якість інформації, яку знайшов(ла) в інтернеті.", "mu": 3.2585, "sd": 0.8487, "rev": false, "n": 4, "sc": "can"}, {"id": "IC180Q03JA", "text": "Перш ніж ділитися інформацією в соцмережах, я перевіряю її достовірність.", "mu": 2.811, "sd": 0.7064, "rev": false, "n": 4, "sc": "a4"}]}, {"id": "curio", "name": "Допитливість", "w": 13, "sign": 1, "mu": 0.00634, "sd": 0.95649, "data": 14.5, "dlo": 9.5, "dhi": 17.7, "items": [{"id": "ST301Q04JA", "text": "Мені подобається знати, як усе влаштовано.", "mu": 3.4574, "sd": 1.0137, "rev": false, "n": 5, "sc": "a5"}, {"id": "ST301Q09JA", "text": "Я витрачаю час, щоб дізнатися більше про те, що мене цікавить.", "mu": 3.7455, "sd": 1.0045, "rev": false, "n": 5, "sc": "a5"}]}, {"id": "effort", "name": "Додаткові зусилля", "w": 4, "sign": 1, "mu": 0.0, "sd": 1.0, "data": 1.7, "dlo": 0.2, "dhi": 6.4, "items": [{"id": "ST307Q02JA", "text": "Я докладаю додаткових зусиль, коли завдання стає складним.", "mu": 3.5631, "sd": 1.048, "rev": false, "n": 5, "sc": "a5"}]}, {"id": "hard", "name": "Складні завдання", "w": 3, "sign": 1, "mu": -0.0, "sd": 1.0, "data": 0.5, "dlo": 0.3, "dhi": 6.7, "items": [{"id": "ST340Q08JA", "text": "Мені подобаються складні шкільні завдання.", "mu": 2.7593, "sd": 0.7784, "rev": false, "n": 4, "sc": "a4"}]}, {"id": "prob", "name": "Розв'язання проблем", "w": 3, "sign": 1, "mu": 0.00034, "sd": 0.97288, "data": 0.2, "dlo": 0.2, "dhi": 5.3, "items": [{"id": "ST340Q06JA", "text": "Мені подобається вигадувати нові способи розв'язання проблем.", "mu": 2.8474, "sd": 0.7268, "rev": false, "n": 4, "sc": "a4"}, {"id": "ST340Q09JA", "text": "Я можу запропонувати кілька розв'язків проблеми.", "mu": 2.8274, "sd": 0.7542, "rev": false, "n": 4, "sc": "a4"}]}], "q": [-2.1733, -1.426, -1.2138, -1.1179, -1.0184, -0.9662, -0.9112, -0.8636, -0.8258, -0.7834, -0.7464, -0.696, -0.6615, -0.6302, -0.6006, -0.5777, -0.5443, -0.5242, -0.5039, -0.4806, -0.4568, -0.4305, -0.412, -0.3964, -0.3805, -0.3609, -0.3373, -0.3134, -0.2986, -0.2835, -0.2685, -0.2498, -0.2378, -0.2229, -0.2006, -0.1861, -0.1716, -0.153, -0.1356, -0.1232, -0.1035, -0.0916, -0.0746, -0.0647, -0.0484, -0.0369, -0.0247, -0.0081, 0.0017, 0.0172, 0.0371, 0.0455, 0.0565, 0.0705, 0.0811, 0.0947, 0.1054, 0.1199, 0.1355, 0.1466, 0.161, 0.1733, 0.1855, 0.2003, 0.2185, 0.2359, 0.2547, 0.2683, 0.2808, 0.2974, 0.3135, 0.3282, 0.3439, 0.3557, 0.3708, 0.3849, 0.403, 0.4221, 0.4342, 0.4546, 0.4694, 0.487, 0.5088, 0.5359, 0.5569, 0.578, 0.5946, 0.6141, 0.6407, 0.6684, 0.7097, 0.7418, 0.7785, 0.8165, 0.848, 0.8949, 0.9499, 1.0251, 1.108, 1.2235, 1.8382], "cuts": [-0.4568, -0.1035, 0.161, 0.4694], "bands": [{"top": 4.4, "lo": 2.8, "hi": 6.4, "comp": 391}, {"top": 10.3, "lo": 7.4, "hi": 13.4, "comp": 418}, {"top": 28.6, "lo": 23.3, "hi": 34.1, "comp": 454}, {"top": 32.7, "lo": 26.6, "hi": 38.8, "comp": 468}, {"top": 54.5, "lo": 48.4, "hi": 60.4, "comp": 506}]};
+  function nmtCheck(scores){
+    var s=scores.filter(function(x){return x!==null&&!isNaN(x)}).sort(function(a,b){return b-a});
+    if(!s.length) return {ok:false,empty:true};
+    var one=s[0]>=NMT_ONE, two=s.length>=2&&s[1]>=NMT_TWO&&s[0]>=NMT_TWO;
+    var needOne=Math.max(0,NMT_ONE-s[0]);
+    var needTwo=s.length>=2?Math.max(0,NMT_TWO-s[0])+Math.max(0,NMT_TWO-s[1]):null;
+    return {ok:one||two,one:one,two:two,best:s[0],second:s.length>1?s[1]:null,needOne:needOne,needTwo:needTwo};
+  }
+  // ans: {itemId: 1..4 as the applicant answered}
+  function potential(ans){
+    var total=0,rows=[];
+    D.blocks.forEach(function(b){
+      var zs=0,raws=0;
+      b.items.forEach(function(it){
+        var a=parseFloat(ans[it.id]); var nat=1+(a-1)*(it.n-1)/4; var raw=it.rev?(it.n+1-nat):nat; raws+=a;
+        zs+=(raw-it.mu)/it.sd;
+      });
+      var bz=(zs/b.items.length)*(b.sign||1); bz=(bz-b.mu)/b.sd;
+      total+=bz*b.w/100;
+      rows.push({id:b.id,name:b.name,mean:raws/b.items.length,z:bz,w:b.w,contrib:bz*b.w/100});
+    });
+    var q=D.q,p;
+    if(total<=q[0]) p=0; else if(total>=q[100]) p=100; else {var i=0;while(i<100&&q[i+1]<total)i++; var span=q[i+1]-q[i]; p=i+(span>0?(total-q[i])/span:0)}
+    var band=0; D.cuts.forEach(function(c){if(total>=c)band++});
+    return {total:total,pct:p,band:band,rows:rows};
+  }
+  return {D:D,nmtCheck:nmtCheck,potential:potential,NMT_ONE:NMT_ONE,NMT_TWO:NMT_TWO};
+})();
+</script>
+
+<script>
+(function(){
+  var GRANTS=[
+    {id:"acad",t:"Академічний грант",d:"За високі бали НМТ."},
+    {id:"cbh",t:"Come back home",d:"Для тих, хто виїхав за кордон і повертається до навчання в Україні."},
+    {id:"fin",t:"Фінансова допомога",d:"Для захисників і захисниць, їхніх дітей, ВПО та мешканців окупованих територій."}
+  ];
+  var CATS=[
+    "Захисник або захисниця (учасник бойових дій або заходів із оборони України)",
+    "Дитина захисника або захисниці",
+    "Внутрішньо переміщена особа",
+    "Місце проживання віднесено до тимчасово окупованих територій або територій бойових дій"
+  ];
+  var NMT=[["Українська мова","ukr"],["Математика","mat"],["Іноземна мова","eng"],["Історія України","his"],["Четвертий предмет (необов'язково)","x4"]];
+  var BANDS=["Дуже низький","Нижче середнього","Середній","Вище середнього","Високий"];
+  var grant=null;
+  function $(i){return document.getElementById(i)}
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+  function fx(n,d){return Number(n).toFixed(d==null?0:d).replace(".",",")}
+
+  var go=$("grantOpts");
+  GRANTS.forEach(function(g){
+    var l=document.createElement("label"); l.className="opt";
+    l.innerHTML='<input type="radio" name="grant" value="'+g.id+'"><div><b>'+esc(g.t)+'</b><span>'+esc(g.d)+'</span></div>';
+    go.appendChild(l);
+  });
+  go.addEventListener("change",function(e){
+    grant=e.target.value;
+    Array.prototype.forEach.call(go.children,function(c){c.classList.toggle("sel",c.querySelector("input").checked)});
+    buildS2();
+    $("s3").classList.remove("hidden");
+    $("btnRow").classList.remove("hidden"); $("out").classList.add("hidden"); $("err").textContent="";
+  });
+
+  function buildS2(){
+    var t=$("s2t"),b=$("s2b"); $("s2").classList.remove("hidden");
+    if(grant==="acad"){
+      t.textContent="2. Бали НМТ";
+      var h='<p>Введіть бали з тих предметів, які складали (від 100 до 200). Те, що не складали, залиште порожнім. Для академічного гранту потрібно <b>190 і більше балів з одного предмета</b> або <b>175 і більше з двох</b>.</p><div class="grid2">';
+      NMT.forEach(function(n){h+='<div><label class="q" for="n_'+n[1]+'">'+esc(n[0])+'</label><input id="n_'+n[1]+'" type="number" inputmode="numeric" min="100" max="200" step="0.5" placeholder="наприклад, 185"></div>'});
+      b.innerHTML=h+'</div>';
+    }else if(grant==="cbh"){
+      t.textContent="2. Підтвердження статусу";
+      b.innerHTML='<label class="opt"><input type="checkbox" id="cbh1"><div><b>Я виїхав(ла) за кордон і планую повернутися до навчання в Україні</b></div></label>';
+    }else{
+      t.textContent="2. Категорія";
+      var h='<p>Позначте всі категорії, до яких ви належите.</p>';
+      CATS.forEach(function(c,i){h+='<label class="opt" style="margin-bottom:10px"><input type="checkbox" class="cat" value="'+i+'"><div><b>'+esc(c)+'</b></div></label>'});
+      b.innerHTML=h;
+    }
+  }
+  var SCL={
+    conf:{1:"зовсім не впевнений(а)",5:"дуже впевнений(а)"},
+    a4:{1:"зовсім не згоден(на)",3:"ні згоден(на), ні не згоден(на)",5:"повністю згоден(на)"},
+    a5:{1:"зовсім не згоден(на)",3:"ні згоден(на), ні не згоден(на)",5:"повністю згоден(на)"},
+    can:{1:"не можу цього зробити",5:"легко можу це зробити"}
+  };
+  (function buildS3(){
+    var h="";
+    CALC.D.blocks.forEach(function(b){
+      h+='<div class="grp">';
+      b.items.forEach(function(it){
+        var n=5,L=SCL[it.sc];
+        h+='<div class="st"><div class="stt">'+esc(it.text)+'</div><div class="chips" style="grid-template-columns:repeat('+n+',1fr)" role="radiogroup" aria-label="'+esc(it.text)+'">';
+        for(var k=1;k<=n;k++) h+='<label class="chip"><input type="radio" name="i_'+it.id+'" value="'+k+'"><span>'+k+'</span></label>';
+        h+='</div><div class="lab'+(Object.keys(L).length===3?' l5':'')+'">'+Object.keys(L).map(function(k){return '<span>'+k+' — '+esc(L[k])+'</span>'}).join('')+'</div></div>';
+      });
+      h+='</div>';
+    });
+    $("s3b").innerHTML=h;
+  })();
+
+  function verdict(ok,title,text){return '<div class="res '+(ok?'ok':'no')+'"><b>'+(ok?'✓ ':'✗ ')+esc(title)+'</b><span>'+text+'</span></div>'}
+
+  function potBlock(r){
+    var Bn=CALC.D.bands[r.band], pct=Math.round(r.pct);
+    var cols=["var(--b1)","var(--b2)","var(--b3)","var(--b4)","var(--b5)"];
+    var h='<h3>Ваш профіль потенціалу</h3><div class="big">Рівень: '+esc(BANDS[r.band]).toLowerCase()+'</div>';
+    h+='<div class="meter" role="img" aria-label="Рівень потенціалу: '+BANDS[r.band]+', приблизно '+pct+'-й перцентиль">';
+    cols.forEach(function(c){h+='<div style="background:'+c+'"></div>'});
+    var pos=Math.min(99,Math.max(1,r.pct));
+    h+='<i style="left:'+pos.toFixed(1)+'%"></i><u style="left:'+Math.min(90,Math.max(10,pos)).toFixed(1)+'%">'+pct+'-й перцентиль</u></div>';
+    h+='<div class="scale">'+BANDS.map(function(b,i){return '<span'+(i===r.band?' class="on"':'')+'>'+b+'</span>'}).join('')+'</div>';
+    h+='<p style="margin-top:12px">Ваш профіль відповідей вищий, ніж у приблизно <b>'+pct+'%</b> українських учнів, що брали участь у PISA 2022. Серед учнів цього рівня <b>'+fx(Bn.top,0)+'%</b> потрапили в топ-25% за сумарним балом PISA.</p>';
+    return h;
+  }
+
+  $("go").addEventListener("click",function(){
+    var err=$("err"); err.textContent=""; var out=$("out"),h="";
+    if(!grant){err.textContent="Спочатку оберіть тип гранту.";return}
+    if(grant==="acad"){
+      var sc=[],bad=false;
+      NMT.forEach(function(n){var v=$("n_"+n[1]).value.trim(); if(v===""){return} var x=parseFloat(v.replace(",",".")); if(isNaN(x)||x<100||x>200){bad=true}else{sc.push(x)}});
+      if(bad){err.textContent="Бали НМТ мають бути в межах від 100 до 200.";return}
+      var r=CALC.nmtCheck(sc);
+      if(r.empty){err.textContent="Введіть бал принаймні з одного предмета.";return}
+      if(r.ok){
+        h+=verdict(true,"Поріг НМТ пройдено",r.one?"Є бал "+r.best+" (потрібно "+CALC.NMT_ONE+" і більше з одного предмета).":"Є щонайменше два предмети з балом "+CALC.NMT_TWO+" і більше.");
+      }else{
+        var hint="На жаль, ви не маєте достатніх балів з НМТ, аби пройти на грант.";
+        h+=verdict(false,"Поріг НМТ не пройдено",hint);
+      }
+    }else if(grant==="cbh"){
+      var ok=$("cbh1").checked;
+      if(!ok) h+=verdict(false,"Умову не виконано","Позначте підтвердження, якщо воно вас стосується.");
+    }else{
+      var n=document.querySelectorAll(".cat:checked").length;
+      if(n===0) h+=verdict(false,"Категорію не обрано","Позначте категорію, якщо вона вас стосується.");
+    }
+    var ans={},miss=0;
+    CALC.D.blocks.forEach(function(b){b.items.forEach(function(it){var el=document.querySelector('input[name="i_'+it.id+'"]:checked'); if(!el){miss++}else{ans[it.id]=el.value}})});
+    if(miss){err.textContent="Дайте відповідь на всі твердження (залишилось "+miss+").";return}
+    h+=potBlock(CALC.potential(ans));
+    out.innerHTML='<h2>Результат</h2>'+h; out.classList.remove("hidden");
+    out.scrollIntoView({behavior:"smooth",block:"start"});
+  });
+
+})();
+</script>
+</body>
+</html>
